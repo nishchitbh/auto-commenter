@@ -35,7 +35,7 @@ This script automatically adds comments to Python code files using Google's Gemi
 Run the script from the command line, specifying the file to be commented with the `--file` argument:
 
 ```bash
-python commentor.py --file path/to/your/python_file.py
+python commenter.py --file path/to/your/python_file.py
 ```
 
 ## Example
