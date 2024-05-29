@@ -18,4 +18,11 @@ def neural_net(array):
 
 3. Finally, add comments about the main logic of the code, complex lines within the code, and providing context where necessary. Refrain from commenting on library functionalities. If the code is already well commented, don't alter the code and return the code as it is.
 
-Strictly follow the points mentioned above. The output format will be json, where keys will be the filenames of code files and values will be commented codes.
+4. if a single file is provided, the output will just be the commented code.
+Similarly, multiple files are provided, the output format is like
+{
+    "file1.py":"code",
+    "file2.py":"code"
+}
+
+Strictly follow the points mentioned above. 
