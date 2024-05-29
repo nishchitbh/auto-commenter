@@ -4,15 +4,17 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import json
 
+# This code leverages Google's Gemini API to add comments to python code. You can comment single file as well as a directory.
+
 # Load environment variables from .env file
 load_dotenv()
 
 
 def parse():
-    '''Parses command line arguments to determine the file or directory to be commented.
+    """Parses command line arguments and returns filename and directory.
 
     Returns:
-        tuple: filename and directory'''
+        tuple: filename, directory"""
     parser = argparse.ArgumentParser(description="Auto commenter")
     parser.add_argument(
         "--file",
@@ -35,13 +37,13 @@ def parse():
 
 
 def commenter(file):
-    '''Uses Google's Gemini AI model to generate comments for the given code.
+    """Takes code as input, generates comments using Gemini and returns commented code.
 
     Args:
-        str: Python code to be commented
+        str: code to be commented
 
     Returns:
-        str: Python code with generated comments'''
+        str: commented code"""
     with open("sys_instruction.txt", "r") as instruction_file:
         sys_instruction = instruction_file.read()
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -56,19 +58,20 @@ def commenter(file):
 
 
 def content_generator(file_name):
-    '''Reads and returns the content of the given file
+    """Reads content from a file.
 
     Args:
-        str: name of the file
+        str: filename
+
     Returns:
-        str: content of the file'''
+        str: file content"""
     with open(file_name, "r") as file:
         content = file.read()
     return content
 
 
 def main():
-    '''Main function to orchestrate the comment generation process.'''
+    """Main function to orchestrate the comment generation process."""
     single_file, directory = parse()
 
     if not single_file:
@@ -77,16 +80,17 @@ def main():
         contents = {i: content_generator(i) for i in files}
         json_contents = json.dumps(contents)
         commented = commenter(json_contents)
+        if commented[:3] == "```":
+            commented = commented[8:-3]
         dict_commented = json.loads(commented)
         for i in dict_commented:
             with open(i, "w") as output:
                 output.write(dict_commented[i])
     else:
-        # If single file is provided, it adds comments to that file.
+        # Process single file
         content = content_generator(single_file)
         commented = commenter(content)
-        if commented[:10]=="```python":
-            # Removes the markdown code block markers from the generated comments.
+        if commented[:9] == "```python":
             commented = commented[10:-3]
         with open(single_file, "w") as code_file:
             code_file.write(commented)
