@@ -82,12 +82,14 @@ def main():
             with open(i, "w") as output:
                 output.write(dict_commented[i])
     else:
-        # Process the single given file
+        # If single file is provided, it adds comments to that file.
         content = content_generator(single_file)
-        commented = commenter(content)[10:-3]
+        commented = commenter(content)
+        if commented[:10]=="```python":
+            # Removes the markdown code block markers from the generated comments.
+            commented = commented[10:-3]
         with open(single_file, "w") as code_file:
             code_file.write(commented)
-
 
 
 main()
