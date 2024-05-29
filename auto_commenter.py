@@ -83,11 +83,11 @@ def main():
                 output.write(dict_commented[i])
     else:
         # Process the single given file
-        with open(single_file, "r") as code_file:
-            content = code_file.read()
+        content = content_generator(single_file)
         commented = commenter(content)[10:-3]
         with open(single_file, "w") as code_file:
             code_file.write(commented)
+
 
 
 main()
