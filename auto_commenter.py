@@ -2,7 +2,6 @@ import os
 import argparse
 import google.generativeai as genai
 from dotenv import load_dotenv
-import json
 from colorama import Fore
 
 load_dotenv()
