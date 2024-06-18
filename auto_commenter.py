@@ -3,18 +3,21 @@ import argparse
 import google.generativeai as genai
 from dotenv import load_dotenv
 import json
+from colorama import Fore
 
-# This code leverages Google's Gemini API to add comments to python code. You can comment single file as well as a directory.
-
-# Load environment variables from .env file
 load_dotenv()
 
+# This code uses Google's Generative AI model to automatically add comments to a given file or directory.
+# The code first parses user-provided arguments, then extracts the content of the target file or files within the directory. 
+# It then calls the Generative AI model to add comments to the extracted content and finally writes the commented code back to the original file(s).
 
 def parse():
-    """Parses command line arguments and returns filename and directory.
-
+    '''Parses command line arguments.
+    Args:
+        None
     Returns:
-        tuple: filename, directory"""
+        str: filename
+        str: directory'''
     parser = argparse.ArgumentParser(description="Auto commenter")
     parser.add_argument(
         "--file",
@@ -35,47 +38,87 @@ def parse():
     directory = args.directory
     return filename, directory
 
-
 def commenter(file):
-    """Takes code as input, generates comments using Gemini and returns commented code.
-
+    '''Adds comments to a given code snippet using Google's Generative AI model.
     Args:
-        str: code to be commented
-
+        str: file
     Returns:
-        str: commented code"""
+        str: code_with_comments'''
     with open("sys_instruction.txt", "r") as instruction_file:
         sys_instruction = instruction_file.read()
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
     genai.configure(api_key=GOOGLE_API_KEY)
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-pro", system_instruction=sys_instruction
+        model_name="gemini-1.5-flash", system_instruction=sys_instruction
     )
 
     response = model.generate_content(file)
     code_with_comments = response.text
     return code_with_comments
 
-
 def content_generator(file_name):
-    """Reads content from a file.
-
+    '''Reads content from a given file.
     Args:
-        str: filename
-
+        str: file_name
     Returns:
-        str: file content"""
+        str: content'''
     with open(file_name, "r") as file:
         content = file.read()
     return content
 
+def content_writer(directory, commented_code):
+    '''Writes commented code to a given file.
+    Args:
+        str: directory
+        str: commented_code
+    Returns:
+        None'''
+    with open(directory, "w") as file:
+        file.write(commented_code)
+
+def extension_extractor(filename: str):
+    '''Extracts the file extension from a given filename.
+    Args:
+        str: filename
+    Returns:
+        str: extension'''
+    name_ext = filename.split(".")
+    return name_ext[-1]
+
+def directory_commenter(root_dir):
+    '''Recursively comments all code files within a given directory.
+    Args:
+        str: root_dir
+    Returns:
+        None'''
+    ignore = ["venv", ".git", "__pycache__"]
+    codes = ["c", "cpp", "py", "js", "ts", "java", "rs"]
+    entries = [folder for folder in os.listdir(root_dir) if folder not in ignore]
+    entries = sorted(entries)
+
+    for entry in entries:
+        path = os.path.join(root_dir, entry)
+
+        if os.path.isdir(path):
+            directory_commenter(path)
+        else:
+            if extension_extractor(path) in codes:
+                content = content_generator(path)
+                print(f"{Fore.GREEN}Processing {path}...{Fore.WHITE}")
+                commented = commenter(content)
+                content_writer(path, commented)
+                
+
 
 def main():
-    """Main function to orchestrate the comment generation process."""
+    '''Main function that orchestrates the comment adding process.
+    Args:
+        None
+    Returns:
+        None'''
     single_file, directory = parse()
 
     if not single_file:
-        # Process all files in the given directory
         files = [a for a in os.listdir(directory) if os.path.isfile(a)]
         contents = {i: content_generator(i) for i in files}
         json_contents = json.dumps(contents)
@@ -87,8 +130,8 @@ def main():
             with open(i, "w") as output:
                 output.write(dict_commented[i])
     else:
-        # Process single file
         content = content_generator(single_file)
+        print(f"{Fore.GREEN}Processing {single_file}...{Fore.WHITE}")
         commented = commenter(content)
         if commented[:9] == "```python":
             commented = commented[10:-3]
