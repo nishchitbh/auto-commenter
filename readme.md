@@ -25,7 +25,7 @@ The Auto Commenter is a Python script designed to automatically generate comment
 
 3. **Install the required packages**:
     ```sh
-    pip install google-generativeai, colorama
+    pip install google-generativeai colorama
     ```
 
 4. **Create a `.env` file** in the root directory of the project and add your Google API key:
