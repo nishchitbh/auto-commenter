@@ -35,7 +35,6 @@ def parse():
     directory = args.directory
     return filename, directory
 
-
 def llm_init():
     '''Initializes the Google Generative AI model and starts a chat session.
     Args:
@@ -52,7 +51,6 @@ def llm_init():
     chat = model.start_chat(history=[])
     return chat
 
-
 def commenter(chat, file):
     '''Sends the code to the LLM for commenting and retrieves the commented code.
     Args:
@@ -63,7 +61,6 @@ def commenter(chat, file):
     response = chat.send_message(file)
     code_with_comments = response.text
     return code_with_comments
-
 
 def content_generator(file_name):
     '''Reads the content of a file and formats it for LLM input.
@@ -76,7 +73,6 @@ def content_generator(file_name):
     json_content = json.dumps({file_name: content})
     return json_content
 
-
 def content_writer(directory, commented_code):
     '''Writes commented code to a file.
     Args:
@@ -87,7 +83,6 @@ def content_writer(directory, commented_code):
     with open(directory, "w") as file:
         file.write(commented_code)
 
-
 def extension_extractor(filename: str):
     '''Extracts the extension of a file.
     Args:
@@ -96,7 +91,6 @@ def extension_extractor(filename: str):
         str: File extension. '''
     name_ext = filename.split(".")
     return name_ext[-1]
-
 
 def directory_commenter(root_dir):
     '''Recursively traverses a directory and comments all supported code files.
@@ -124,8 +118,6 @@ def directory_commenter(root_dir):
             print(f"{Fore.GREEN}Processing {path}...{Fore.WHITE}")
             commented = commenter(chat, content)
             content_writer(path, commented)
-    print(chat.history)
-
 
 def main():
     '''Main function that orchestrates single file or directory commenting.
@@ -143,6 +135,7 @@ def main():
         content = content_generator(single_file)
         print(f"{Fore.GREEN}Processing {single_file}...{Fore.WHITE}")
         commented = commenter(chat, content)
+        # Removing the initial "```python" and the last "```" from the code, as these are added by the LLM
         if commented[:9] == "```python":
             commented = commented[10:-3]
         with open(single_file, "w") as code_file:
@@ -150,4 +143,3 @@ def main():
 
 
 main()
-
