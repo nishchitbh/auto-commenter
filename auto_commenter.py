@@ -1,18 +1,19 @@
+# This Python script is designed to comment out the code within specified files and directories. It uses a chat model from Ollama to generate comments based on human-readable input. The script supports various programming languages and can process both individual files and entire directories.
+
 import os  
 import argparse  
 import ollama  
 from colorama import Fore  
 import json  
 
-# Load historical chat data from a JSON file.
+# Load historical data from "history.json"
 with open("history.json", "r") as history_file:  
     history = json.load(history_file)  
 
 def parse():  
-    '''Parse command-line arguments to specify a file or directory for commenting.
-    
+    '''Parses command-line arguments to determine whether to comment a single file or an entire directory.
     Returns:
-        tuple: A tuple containing the filename and directory specified by the user.'''
+        tuple: A tuple containing the filename and directory, which can be None if not specified. '''
     parser = argparse.ArgumentParser(description="Auto commenter")
     parser.add_argument("--file", type=str, required=False, default=None, help="File to be commented")
     parser.add_argument("--directory", type=str, required=False, default=None, help="Directory to be commented")
@@ -21,78 +22,64 @@ def parse():
     directory = args.directory  
     return filename, directory  
 
-# Read system instruction from a text file.
 with open("sys_instruction.txt", "r") as sys_file:  
     sys_text = sys_file.read()  
 
-# Insert the system instruction into the historical chat data.
+# Insert the system instruction into the history list
 history.insert(0, {"role": "system", "content": sys_text})  
 
 def generate_comment(human_text):  
-    '''Generate a comment for the given human text using an AI model.
-    
+    '''Generates a comment using an Ollama chat model based on the provided human text.
     Args:
-        human_text (str): The input text to be commented.
-    
+        human_text (str): The input text for which to generate a comment.
     Returns:
-        str: Commented code or message.'''
+        str: The generated comment. '''
     history.append({"role": "user", "content": human_text})
     response = ollama.chat(model="qwen2.5-coder:7b", messages=history)
     return response["message"]["content"]  
 
 def commenter(chat, file):  
-    '''Read the content of a file and pass it to the comment generation function.
-    
+    '''Reads the content of a file and returns it commented.
     Args:
         chat (function): The function to generate comments.
-        file (str): Path to the file to be commented.
-    
+        file (str): The path to the file to comment.
     Returns:
-        str: Commented code or message.'''
+        str: The commented content. '''
     with open(file, "r") as f:
         content = f.read()
     return chat(content)  
 
 def content_generator(file_name):  
-    '''Read the content of a single file and convert it into JSON format.
-    
+    '''Generates a JSON representation of the content of a single file.
     Args:
-        file_name (str): Path to the file to be read.
-    
+        file_name (str): The path to the file.
     Returns:
-        str: JSON formatted string containing the file content.'''
+        str: A JSON string containing the file name and its content. '''
     with open(file_name, "r") as file:
         content = file.read()
     return json.dumps({file_name: content})  
 
-# Write the commented code back to the specified directory or file.
 def content_writer(directory, commented_code):  
-    '''Write the commented code back to a file.
-    
+    '''Writes the commented code to a specified directory.
     Args:
-        directory (str): Path to the file where commented code will be written.
-        commented_code (str): The commented code to write.'''
+        directory (str): The path to the directory where the commented code will be written.
+        commented_code (str): The commented code. '''
     with open(directory, "w") as file:
         file.write(commented_code)  
 
-# Extract the file extension from a filename.
 def extension_extractor(filename: str):  
-    '''Extract the file extension from the given filename.
-    
+    '''Extracts the file extension from a filename.
     Args:
-        filename (str): The filename from which to extract the extension.
-    
+        filename (str): The filename to extract the extension from.
     Returns:
-        str: The file extension.'''
+        str: The file extension. '''
     name_ext = filename.split(".")
     return name_ext[-1]  
 
-# Recursively comment all relevant files in a directory structure.
 def directory_commenter(root_dir):  
-    '''Recursively comment all relevant files in a directory structure.
-    
+    '''Recursively comments all supported code files in a given directory.
     Args:
-        root_dir (str): Path to the root directory containing code files.'''
+        root_dir (str): The path to the directory to comment. '''
     chat = generate_comment
     ignore = ["venv", ".git", "__pycache__"]  
     codes = ["c", "cpp", "py", "js", "ts", "java", "rs"] 
@@ -114,8 +101,8 @@ def directory_commenter(root_dir):
             commented = commenter(chat, path)
             content_writer(path, commented)  
 
-# Main function to process either a single file or an entire directory.
 def main():  
+    '''Main function to parse command-line arguments and comment files or directories accordingly. '''
     chat = generate_comment
 
     single_file, directory = parse() 

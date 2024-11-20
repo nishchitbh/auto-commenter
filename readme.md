@@ -1,89 +1,158 @@
 # Auto Commenter
 
-The Auto Commenter is a Python script designed to automatically generate comments for your Python code using Google's Gemini AI model. This tool can process individual files or entire directories, adding helpful comments to your code to improve readability and maintainability.
+**Auto Commenter** is a Python tool that automates the process of adding comments to code files. Using AI, it analyzes the code and generates meaningful comments to enhance readability and maintainability. The tool supports both individual files and entire directories containing code files.
 
-## Table of Contents
-- [Installation](#installation)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [Example](#example)
-- [License](#license)
+## Features
+- **AI-Powered Commenting**: Generates comments for code files using an AI model.
+- **File or Directory Processing**: Process a single file or recursively comment all files in a directory.
+- **Customizable Instructions**: Define AI system instructions via a `sys_instruction.txt` file.
+- **Supported Languages**: Works with files written in Python, JavaScript, TypeScript, C, C++, Java, Rust, and more.
+- **Configurable Ignored Directories**: Skips directories like `venv`, `.git`, and `__pycache__`.
+
+---
+
+## Prerequisites
+
+Ensure the following tools are installed:
+- Python 3.8 or later
+- Virtual Environment (optional but recommended)
+
+---
 
 ## Installation
 
-1. **Clone the repository**:
-    ```sh
-    git clone https://github.com/mr0bn0xi0us/auto-commenter.git
-    cd auto-commenter
-    ```
+1. Clone this repository or download the source code.
 
-2. **Set up a virtual environment** (optional but recommended):
-    ```sh
-    python -m venv venv
-    source venv/bin/activate   # On Windows use `venv\Scripts\activate`
-    ```
+2. Navigate to the project directory:
+   ```bash
+   cd auto-commenter
+   ```
 
-3. **Install the required packages**:
-    ```sh
-    pip install google-generativeai colorama
-    ```
+3. Install dependencies using `requirements.txt`:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-4. **Create a `.env` file** in the root directory of the project and add your Google API key:
-    ```sh
-    echo "GOOGLE_API_KEY=your_google_api_key" > .env
-    ```
+---
 
 ## Usage
 
-The script can be run from the command line and accepts two optional arguments: `--file` for a single file and `--directory` for a directory of files.
+### Command-Line Arguments
 
-### Command Line Arguments
+The tool supports two modes of operation:
 
-- `--file`: Specify a single file to be commented.
-- `--directory`: Specify a directory containing multiple files to be commented.
+1. **Single File Processing**
+   Specify a single file to comment:
+   ```bash
+   python main.py --file <path_to_file>
+   ```
 
-### Examples
+2. **Directory Processing**
+   Process all relevant files in a directory:
+   ```bash
+   python main.py --directory <path_to_directory>
+   ```
 
-#### Commenting a Single File
+   **Note**: Files in ignored directories (`venv`, `.git`, etc.) will be skipped.
 
-```sh
-python auto_commenter.py --file path/to/your_file.py
-```
+---
 
-#### Commenting All Files in a Directory
+### Input Files
 
-```sh
-python auto_commenter.py --directory path/to/your_directory
-```
+- **System Instructions**: Provide instructions for the AI model in a `sys_instruction.txt` file.  
+  Example:
+  ```
+  Please generate detailed comments for the given code.
+  ```
 
-## Configuration
+- **Historical Data**: The AI model uses previous conversations stored in `history.json` for context.
 
-The script reads a system instruction from a file named `sys_instruction.txt` which should be located in the same directory as the script. This file contains the instructions that will be given to the AI model for generating comments.
+---
+
+## How It Works
+
+1. **Input Parsing**: The script reads command-line arguments to determine whether a file or directory is being processed.
+2. **AI Initialization**: Loads the system instructions from `sys_instruction.txt` and initializes historical chat data from `history.json`.
+3. **Code Commenting**: For each code file:
+   - Reads the content.
+   - Sends it to the AI for comment generation.
+   - Writes the commented code back to the file.
+4. **Recursive Directory Processing**: If a directory is specified, the script recursively processes all relevant files.
+
+---
+
+## Supported Languages
+
+The following file types are supported:
+- `.py` (Python)
+- `.js` (JavaScript)
+- `.ts` (TypeScript)
+- `.c` (C)
+- `.cpp` (C++)
+- `.java` (Java)
+- `.rs` (Rust)
+
+---
 
 ## Example
 
-Given a Python file `example.py` with the following content:
+### Single File
 
-```python
-def add(a, b):
-    return a + b
+To process a Python file `example.py`:
+```bash
+python main.py --file example.py
 ```
 
-Running the command:
+### Directory
 
-```sh
-python auto_commenter.py --file example.py
+To process all files in a directory `src`:
+```bash
+python main.py --directory src
 ```
 
-Might produce the following commented code:
+---
 
-```python
-# Function to add two numbers
-def add(a, b):
-    # Returns the sum of a and b
-    return a + b
-```
+## Contributing
+
+If you'd like to contribute to this project:
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b feature-name`.
+3. Commit your changes: `git commit -m "Add feature name"`.
+4. Push to the branch: `git push origin feature-name`.
+5. Create a pull request.
+
+---
+
+## Issues
+
+If you encounter any issues, please report them in the [Issues](#) section.
+
+---
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+---
+
+## Requirements
+
+All required libraries and frameworks are listed in `requirements.txt`. Install them using:
+```bash
+pip install -r requirements.txt
+```
+
+### Example `requirements.txt`
+
+```
+argparse
+colorama
+ollama
+```
+
+---
+
+## Acknowledgements
+
+- The AI model is powered by `ollama`.
+- Inspired by the need for better code documentation using AI.
